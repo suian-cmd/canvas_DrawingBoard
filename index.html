@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画板</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- canvas要使用html自带的width、height不要使用css中的width、height，或者会很模糊 -->
+    <canvas id="canvas" width="100" height="100">
+
+    </canvas>
+    <script>
+        let canvas = document.getElementById('canvas')
+        canvas.width = document.documentElement.clientWidth;
+        canvas.height = document.documentElement.clientHeight;
+        // canvas只是定义了一个绘图容器，canvas.getContext("2d")定义绘图环境
+        let ctx = canvas.getContext("2d"); 
+        ctx.lineWidth = 8;      //设置直线宽度
+        ctx.lineCap = 'round';    //设置直线端口为原型，因为方形拐点不闭合
+        ctx.fillStyle = "black";    //设置图形填充样式
+        ctx.strokeStyle = 'none';    //设置或返回用于笔触的颜色、渐变或模式，可记为边框样式
+
+        let painting = false;
+        let last = [];
+
+        var isTouchDevice = 'ontouchstart' in document.documentElement;     //用于区分触屏设备
+        if (isTouchDevice){
+            //console.log(1);
+            canvas.ontouchstart = (e) => {
+                let x = e.touches[0].clientX;    //触碰点位置,touches[0]获取第一根手指的位置，因为可能存在多跟手指同时触碰
+                let y = e.touches[0].clientY;
+                last = [x, y];
+            }
+            canvas.ontouchmove = (e) => {
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                drawLine(last[0], last[1], x ,y);    //绘制直线
+                last = [x, y];
+            }
+        } else {
+            //console.log(2);
+            canvas.onmousedown = (e) => {
+                let x = e.clientX;
+                let y = e.clientY;
+                last = [x, y];
+                painting = true;
+                //console.log(3);
+            }
+            canvas.onmousemove = (e) => {
+                if(painting){
+                    let x = e.clientX;
+                    let y = e.clientY;
+                    drawLine(last[0], last[1], x, y);
+                    //console.log(43);
+                    last = [x, y];
+                }
+            }
+            canvas.onmouseup = (e) => {
+                painting = false;
+            }
+        }
+
+        function drawLine(x1, y1, x2, y2){
+            ctx.beginPath();         //设置开始路径
+            ctx.moveTo(x1, y1);      //设置开始点
+            ctx.lineTo(x2, y2);      //设置结束点
+            ctx.stroke();            //连线
+        }
+
+    </script>
+</body>
+</html>
